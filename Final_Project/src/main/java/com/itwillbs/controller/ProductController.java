@@ -11,6 +11,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
@@ -18,13 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.itwillbs.domain.Cs_PageDTO;
 import com.itwillbs.domain.ProductDTO;
 import com.itwillbs.service.ProductService;
 import com.itwillbs.service.WishService;
 
 @Controller
 public class ProductController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 	
 	@Inject
 	ProductService productService;
@@ -43,7 +46,6 @@ public class ProductController {
 		String productNum = request.getParameter("productNum");
 		Map<String, Object> productMap = productService.getProductInfo(productNum);
 		
-		
 		//판매자 다른 상품 정보 가져오기
 		List<Map<String, Object>> sellerProducts = productService.getSellerProduct(productMap);
 		
@@ -52,7 +54,6 @@ public class ProductController {
 		
 		String wishCheck = "true";
 		if (count == 0) wishCheck = "false";
-		
 		
 		model.addAttribute("productMap", productMap);
 		model.addAttribute("sellerProducts", sellerProducts);
@@ -63,9 +64,8 @@ public class ProductController {
 	
 	@RequestMapping(value = "/product/insertForm", method = RequestMethod.GET)	
 	public String insertForm() {
-		// 기본 이동방식 : 주소변경 없이 이동 
 		return "product/insertForm";
-	}//
+	}
 
 	
 	@RequestMapping(value = "/product/insertPro", method = RequestMethod.POST)	
@@ -78,7 +78,7 @@ public class ProductController {
 							MultipartFile file4, 
 							MultipartFile file5) throws Exception {
 		
-		System.out.println("ProductController insertPro() ");
+		logger.info("ProductController insertPro()");
 		
 		MultipartFile[] files = {file, file1, file2, file3, file4, file5};
 		String resultFilename = "";
@@ -92,15 +92,7 @@ public class ProductController {
 			}
 		}
 		resultFilename = resultFilename.substring(0, resultFilename.length() - 1);
-		System.out.println(resultFilename);
-		
-//		String filename=uuid.toString()+"_"+file.getOriginalFilename();
-		
-		//원본 파일복사 =>upload 복사
-//		FileCopyUtils.copy(원본, 복사해서 새롭게 파일 만드릭);
-//		FileCopyUtils.copy(file.getBytes(), new File(경로, 파일이름));
-		
-//		FileCopyUtils.copy(file.getBytes(), new File(uploadPath, filename));
+		logger.info("업로드 파일: {}", resultFilename);
 		
 		ProductDTO productDTO = new ProductDTO();
 		productDTO.setProductPic(resultFilename);
@@ -109,18 +101,12 @@ public class ProductController {
 		productDTO.setProductCate(request.getParameter("productCate"));
 		productDTO.setProductContent(request.getParameter("productContent"));
 		productDTO.setProductGrade(request.getParameter("productGrade"));
-//		productDTO.setProductLoca(request.getParameter("productLoca"));
 		productDTO.setProductPrice(Integer.parseInt(request.getParameter("productPrice")));
 		
 		productService.insertProduct(productDTO);
 		
-		
-		// 이동방식 : 주소변경 하면서 이동 
-		// response.sendRedirect() 이동
 		return "redirect:/list/selllist";
-
-		
-	}//
+	}
 	
 	@RequestMapping(value = "/product/list", method = RequestMethod.GET)
 	public String productList(Model model,HttpServletRequest request, HttpSession session) {
@@ -131,21 +117,14 @@ public class ProductController {
 			filterValue = "productDate";
 		}
 		
-		
 		// 카테고리 리스트 불러오기
 		List<Map<String, Object>> productCateList = productService.getproductCateList();
-		// 카테고리 리스트 불러오기
-		
 		
 		String startPrice = request.getParameter("startPrice");
-//		if ("".equals(startPrice ) || startPrice == null) {
-//			startPrice = "0";
-//		}
 		String endPrice = request.getParameter("endPrice");
 		
 		String productCate = request.getParameter("productCate");
 		String searchText = request.getParameter("searchText");
-		
 		
 		String offset="0";
 		String limit="9";
@@ -160,27 +139,19 @@ public class ProductController {
 	    params.put("filterValue", filterValue);
 	    params.put("startPrice", startPrice);
 	    params.put("endPrice", endPrice);
-	    
-		
-
 		
 		List<Map<String, Object>> productList = productService.getProductList(params);
 		int productMax = productService.getproductMax(params);
 		
-		
 		model.addAttribute("productCateList", productCateList);
 		model.addAttribute("productList", productList);
-		
-		
 		model.addAttribute("productCate", productCate);
 		model.addAttribute("searchText", searchText);
 		model.addAttribute("productMax", productMax);
 		model.addAttribute("filterValue", filterValue);
 		model.addAttribute("startPrice", startPrice);
 		model.addAttribute("endPrice", endPrice);
-		model.addAttribute("contextPath", request.getQueryString()); //데이터있을경우 화면 이동하게
-		
-		
+		model.addAttribute("contextPath", request.getQueryString());
 		
 		// 인기상품 리스트 
 		params.put("memId", null);
@@ -204,9 +175,8 @@ public class ProductController {
 		
 		productService.deleteProduct(productNum);
 		
-		
 		return "redirect:/list/selllist";
-	}//
+	}
 	
 	//상품업데이트
 	@RequestMapping(value = "/product/update", method = RequestMethod.GET)	
@@ -217,9 +187,8 @@ public class ProductController {
 		
 		model.addAttribute("dto", dto);
 		
-		// 기본 이동방식 : 주소변경 없이 이동 
 		return "product/updateForm";
-	}//
+	}
 
 	//수정
 	@RequestMapping(value = "/product/updatePro", method = RequestMethod.POST)	
@@ -232,7 +201,7 @@ public class ProductController {
 							MultipartFile file4, 
 							MultipartFile file5) throws Exception {
 		
-		System.out.println("ProductController updatePro() ");
+		logger.info("ProductController updatePro()");
 		
 		MultipartFile[] files = {file, file1, file2, file3, file4, file5};
 		String resultFilename = "";
@@ -246,7 +215,7 @@ public class ProductController {
 			}
 		}
 		resultFilename = resultFilename.substring(0, resultFilename.length() - 1);
-		System.out.println(resultFilename);
+		logger.info("업로드 파일: {}", resultFilename);
 		
 		ProductDTO productDTO = new ProductDTO();
 		productDTO.setProductNum(Integer.parseInt(request.getParameter("num")));
@@ -256,15 +225,10 @@ public class ProductController {
 		productDTO.setProductCate(request.getParameter("productCate"));
 		productDTO.setProductContent(request.getParameter("productContent"));
 		productDTO.setProductGrade(request.getParameter("productGrade"));
-//		productDTO.setProductLoca(request.getParameter("productLoca"));
 		productDTO.setProductPrice(Integer.parseInt(request.getParameter("productPrice")));
 		productService.updateProduct(productDTO);
 		
-		// 이동방식 : 주소변경 하면서 이동 
-		// response.sendRedirect() 이동
 		return "redirect:/list/selllist";
-		
-	}//
-	
+	}
 	
 }

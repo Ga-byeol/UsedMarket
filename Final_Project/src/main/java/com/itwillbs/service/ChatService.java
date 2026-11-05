@@ -65,6 +65,10 @@ public class ChatService {
         System.out.println(pathName);
         //File 클래스에 pathName 할당
         File txtFile = new File(pathName);
+        File parentDir = txtFile.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
         //로컬경로에 파일 생성
         txtFile.createNewFile();
         System.out.println("createFile end");

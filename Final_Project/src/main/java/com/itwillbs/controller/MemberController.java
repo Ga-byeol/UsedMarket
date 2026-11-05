@@ -1,37 +1,16 @@
 package com.itwillbs.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.http.HttpHeaders;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
-
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.util.UrlPathHelper;
 
-import com.google.protobuf.Message;
 import com.itwillbs.domain.MemberDTO;
 import com.itwillbs.service.MemberService;
 
@@ -143,7 +122,7 @@ public class MemberController {
 	@RequestMapping(value = "/member/logout", method = RequestMethod.GET)
 	public String logout(HttpSession session) {
 		session.invalidate();
-		return "redirect:/member/mypage";
+		return "redirect:/main/main";
 	}
 	// 마이페이지
 	@RequestMapping(value = "/member/mypage", method = RequestMethod.GET)
@@ -188,6 +167,6 @@ public class MemberController {
 	public String deletePro(MemberDTO dto, HttpSession session) {
 			memberService.deleteMember(dto);
 			session.invalidate();
-			return "redirect:/member/mypage";
+			return "redirect:/main/main";
 	}
 }
